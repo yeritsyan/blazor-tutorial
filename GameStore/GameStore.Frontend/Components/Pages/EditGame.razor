@@ -1,34 +1,59 @@
 ﻿@page "/editgame"
-@using GameStore.Frontend.Models
 
 <PageTitle>Edit Game</PageTitle>
 
 <h3>New Game</h3>
 
-<form>
-  <div class="mb-3">
-    <label for="name" class="form-label">Name</label>
-    <input type="text" class="form-control" id="name" @bind="game.Name" required>
+@if(genres is null){
+  <p>Loading genres...</p>
+}
+else{
+  <div class="row">
+    <div class="col-md-4">
+      <EditForm Model="@game" FormName="editGame">
+        <div class="mb-3">
+          <label for="nameInput" class="form-label">Name:</label>
+          <InputText id="nameInput" class="form-control" @bind-Value="@game.Name" />
+        </div>
+        <div class="mb-3">
+          <label for="genreInput" class="form-label">Genre:</label>
+          <InputSelect id="genreInput" class="form-select" @bind-Value="@game.GenreId">
+            <option value="">Select Genre</option>
+            @if (genres != null)
+            {
+                foreach (var genre in genres)
+                {
+                    <option value="@genre.Id">@genre.Name</option>
+                }
+            }
+          </InputSelect>
+        </div>
+        <div class="mb-3">
+          <label for="priceInput" class="form-label">Price:</label>
+          <InputNumber id="priceInput" class="form-control" @bind-Value="@game.Price" />
+        </div>
+        <div class="mb-3">
+          <label for="releaseDateInput" class="form-label">Release Date:</label>
+          <InputDate id="releaseDateInput" class="form-control" @bind-Value="@game.ReleaseDate" />
+        </div>
+      </EditForm>
+    </div>
   </div>
-  <div class="mb-3">
-    <label for="genre" class="form-label">Genre ID</label>
-    <input type="text" class="form-control" id="genre" @bind="game.GenreId">
-  </div>
-  <div class="mb-3">
-    <label for="price" class="form-label">Price</label>
-    <input type="number" class="form-control" id="price" @bind="game.Price" step="0.01" min="0">
-  </div>
-  <div class="mb-3">
-    <label for="releaseDate" class="form-label">Release Date</label>
-    <input type="date" class="form-control" id="releaseDate" @bind="game.ReleaseDate">
-  </div>
-  <button type="submit" class="btn btn-primary">Save Game</button>
-  <a href="/" class="btn btn-secondary ms-2">Cancel</a>
-</form>
+}
 
 @code {
     private GameDetails game { get; set; } = new(){
         Name = string.Empty,
         ReleaseDate = DateOnly.FromDateTime(DateTime.Now),
     };
+
+    private GenresClient _genresClient = new();
+
+    private Genre[]? genres;
+
+    protected override void OnInitialized()
+    {
+        // Simulate fetching genres from the client
+        genres = _genresClient.GetGenres().ToArray();
+    }
 }
