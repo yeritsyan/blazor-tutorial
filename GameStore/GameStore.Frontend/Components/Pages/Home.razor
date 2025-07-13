@@ -1,0 +1,44 @@
+﻿@page "/"
+@using GameStore.Frontend.Clients
+@using Models;
+
+<PageTitle>Games Catalog</PageTitle>
+
+@if(_games is null){
+    <p>Loading games...</p>
+} else{
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="table-dark">
+            <th>Id</th>
+            <th>Name</th>
+            <th>Genre</th>
+            <th class="text-end">Price</th>
+            <th>Release Date</th>
+            <th></th>
+        </thead>
+        <tbody>
+        @foreach(var game in _games){
+            <tr>
+                <td>@game.Id</td>
+                <td>@game.Name</td>
+                <td>@game.Genre</td>
+                <td class="text-end">@game.Price.ToString("C2")</td>
+                <td>@game.ReleaseDate.ToString("d")</td>
+                <td>
+                    <button class="btn btn-primary">Details</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private GamesClient _gamesClient = new();
+    private List<GameSummary> _games = new();
+
+    protected override void OnInitialized()
+    {
+        _games = _gamesClient.GetGames();
+    }
+}
