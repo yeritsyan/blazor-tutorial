@@ -34,4 +34,34 @@ public class GamesClient
         };
 
     public List<GameSummary> GetGames() => _games;
+
+    public void AddGame(GameDetails game)
+    {
+        var genres = new GenresClient().GetGenres();
+
+        _games.Add(new GameSummary
+        {
+            Id = _games.Max(g => g.Id) + 1,
+            Name = game.Name,
+            Genre = genres.FirstOrDefault(g => g.Id.ToString() == game.GenreId)?.Name ?? "Unknown",
+            Price = game.Price,
+            ReleaseDate = game.ReleaseDate
+        });
+    }
+
+    public GameDetails? GetGameDetails(int id)
+    {
+        var game = _games.FirstOrDefault(g => g.Id == id);
+        if (game == null) return null;
+
+        var genres = new GenresClient().GetGenres();
+        return new GameDetails
+        {
+            Id = game.Id,
+            Name = game.Name,
+            GenreId = genres.SingleOrDefault(g => string.Equals(g.Name, game.Genre, StringComparison.OrdinalIgnoreCase))?.Id.ToString() ?? string.Empty,
+            Price = game.Price,
+            ReleaseDate = game.ReleaseDate
+        };
+    }
 }

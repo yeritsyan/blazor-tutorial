@@ -1,19 +1,27 @@
 ﻿@page "/editgame"
+@page "/editgame/{gameId:int?}"
+
+@inject NavigationManager NavigationManager
+@inject GamesClient GamesClient
+@inject GenresClient GenresClient
 
 <PageTitle>Edit Game</PageTitle>
 
 <h3>New Game</h3>
 
-@if(genres is null){
+@if(genres is null || game is null){
   <p>Loading genres...</p>
 }
 else{
   <div class="row">
     <div class="col-md-4">
-      <EditForm Model="@game" FormName="editGame">
+      <EditForm Model="@game" FormName="editGame" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
         <div class="mb-3">
           <label for="nameInput" class="form-label">Name:</label>
           <InputText id="nameInput" class="form-control" @bind-Value="@game.Name" />
+          <ValidationMessage For="() => game.Name" />
         </div>
         <div class="mb-3">
           <label for="genreInput" class="form-label">Genre:</label>
@@ -27,33 +35,66 @@ else{
                 }
             }
           </InputSelect>
+          <ValidationMessage For="() => game.GenreId" />
         </div>
         <div class="mb-3">
           <label for="priceInput" class="form-label">Price:</label>
           <InputNumber id="priceInput" class="form-control" @bind-Value="@game.Price" />
+          <ValidationMessage For="() => game.Price" />
         </div>
         <div class="mb-3">
           <label for="releaseDateInput" class="form-label">Release Date:</label>
           <InputDate id="releaseDateInput" class="form-control" @bind-Value="@game.ReleaseDate" />
         </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="/" role="button" class="btn btn-secondary">Cancel</a>
       </EditForm>
     </div>
   </div>
 }
 
 @code {
-    private GameDetails game { get; set; } = new(){
-        Name = string.Empty,
-        ReleaseDate = DateOnly.FromDateTime(DateTime.Now),
-    };
+  [Parameter]
+  public int? GameId { get; set; }
 
-    private GenresClient _genresClient = new();
+  [SupplyParameterFromForm]
+  private GameDetails? game { get; set; }
 
-    private Genre[]? genres;
+  private Genre[]? genres;
 
-    protected override void OnInitialized()
-    {
-        // Simulate fetching genres from the client
-        genres = _genresClient.GetGenres().ToArray();
-    }
+  protected override void OnParametersSet()
+  {
+      if (game is not null){
+        // user entered new game, so we do not need to fetch details
+        return;
+      }
+
+      if (GameId.HasValue)
+      {
+          // Simulate fetching game details from the client
+          game = GamesClient.GetGameDetails(GameId.Value);
+      }
+      else
+      {
+          game = new GameDetails
+          {
+              Name = string.Empty,
+              ReleaseDate = DateOnly.FromDateTime(DateTime.Now),
+          };
+      }
+  }
+
+  protected override void OnInitialized()
+  {
+      // Simulate fetching genres from the client
+      genres = GenresClient.GetGenres().ToArray();
+  }
+
+  private void HandleSubmit()
+  {
+    ArgumentNullException.ThrowIfNull(game, nameof(game));
+
+    GamesClient.AddGame(game);
+    NavigationManager.NavigateTo("/"); // Redirect to home after saving
+  }
 }

@@ -1,13 +1,16 @@
 ﻿@page "/"
-@using GameStore.Frontend.Clients
-@using Models;
+@inject GamesClient GamesClient
 
 <PageTitle>Games Catalog</PageTitle>
+
+<div>
+    <a class="btn btn-primary" role="button" href="/editgame">New Game</a>
+</div>
 
 @if(_games is null){
     <p>Loading games...</p>
 } else{
-    <table class="table table-striped table-bordered table-hover">
+    <table class="table table-striped table-bordered table-hover mt-2">
         <thead class="table-dark">
             <th>Id</th>
             <th>Name</th>
@@ -34,11 +37,10 @@
 }
 
 @code {
-    private GamesClient _gamesClient = new();
     private List<GameSummary> _games = new();
 
     protected override void OnInitialized()
     {
-        _games = _gamesClient.GetGames();
+        _games = GamesClient.GetGames();
     }
 }
