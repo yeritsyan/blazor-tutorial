@@ -64,4 +64,25 @@ public class GamesClient
             ReleaseDate = game.ReleaseDate
         };
     }
+
+    public void UpdateGame(GameDetails game)
+    {
+        var existingGame = _games.FirstOrDefault(g => g.Id == game.Id);
+        if (existingGame != null)
+        {
+            existingGame.Name = game.Name;
+            existingGame.Genre = new GenresClient().GetGenres().FirstOrDefault(g => g.Id.ToString() == game.GenreId)?.Name ?? "Unknown";
+            existingGame.Price = game.Price;
+            existingGame.ReleaseDate = game.ReleaseDate;
+        }
+    }
+
+    public void DeleteGame(int id)
+    {
+        var game = _games.FirstOrDefault(g => g.Id == id);
+        if (game != null)
+        {
+            _games.Remove(game);
+        }
+    }
 }

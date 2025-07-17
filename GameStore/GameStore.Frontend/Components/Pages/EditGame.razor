@@ -1,13 +1,14 @@
-﻿@page "/editgame"
+﻿@rendermode InteractiveServer
+@page "/editgame"
 @page "/editgame/{gameId:int?}"
 
 @inject NavigationManager NavigationManager
 @inject GamesClient GamesClient
 @inject GenresClient GenresClient
 
-<PageTitle>Edit Game</PageTitle>
+<PageTitle>@title</PageTitle>
 
-<h3>New Game</h3>
+<h3>@title</h3>
 
 @if(genres is null || game is null){
   <p>Loading genres...</p>
@@ -62,6 +63,8 @@ else{
 
   private Genre[]? genres;
 
+  private string title {get; set;} = string.Empty;
+
   protected override void OnParametersSet()
   {
       if (game is not null){
@@ -73,6 +76,7 @@ else{
       {
           // Simulate fetching game details from the client
           game = GamesClient.GetGameDetails(GameId.Value);
+          title = $"Edit Game: {game?.Name}";
       }
       else
       {
@@ -81,6 +85,7 @@ else{
               Name = string.Empty,
               ReleaseDate = DateOnly.FromDateTime(DateTime.Now),
           };
+          title = "Add New Game";
       }
   }
 
@@ -94,7 +99,18 @@ else{
   {
     ArgumentNullException.ThrowIfNull(game, nameof(game));
 
-    GamesClient.AddGame(game);
+    if(GameId is null)
+    {
+      // If game does not exist, we are adding a new game
+      GamesClient.AddGame(game);
+    }
+    else
+    {
+      game.Id = GameId.Value; // Ensure the game ID is set for updates
+      // If game exists, we are updating it
+      GamesClient.UpdateGame(game);
+    }
+
     NavigationManager.NavigateTo("/"); // Redirect to home after saving
   }
 }
