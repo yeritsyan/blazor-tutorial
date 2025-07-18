@@ -1,1 +1,33 @@
+###
 GET http://localhost:5158
+
+###
+GET http://localhost:5158/games
+
+###
+GET http://localhost:5158/games/3
+
+###
+POST http://localhost:5158/games
+Content-Type: application/json
+
+{
+    "name": "Game xx",
+    "genre": "Genre xx",
+    "price": 39.99,
+    "releaseDate": "2023-03-01"
+}
+
+###
+PUT http://localhost:5158/games/3
+Content-Type: application/json
+
+{
+    "name": "Updated Game 3",
+    "genre": "Updated Genre 3",
+    "price": 49.99,
+    "releaseDate": "2023-03-01"
+}
+
+###
+DELETE http://localhost:5158/games/3
