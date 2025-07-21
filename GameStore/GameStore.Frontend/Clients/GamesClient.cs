@@ -1,88 +1,31 @@
 using System;
+using System.Threading.Tasks;
 using GameStore.Frontend.Models;
 
 namespace GameStore.Frontend.Clients;
 
-public class GamesClient
+public class GamesClient(HttpClient client)
 {
-    private List<GameSummary> _games = new List<GameSummary>
-        {
-            new GameSummary
-            {
-                Id = 1,
-                Name = "Game One",
-                Genre = "Action",
-                Price = 29.99m,
-                ReleaseDate = new DateOnly(2023, 10, 1)
-            },
-            new GameSummary
-            {
-                Id = 2,
-                Name = "Game Two",
-                Genre = "Adventure",
-                Price = 49.99m,
-                ReleaseDate = new DateOnly(2023, 11, 15)
-            },
-            new GameSummary
-            {
-                Id = 3,
-                Name = "Game Three",
-                Genre = "RPG",
-                Price = 59.99m,
-                ReleaseDate = new DateOnly(2024, 2, 20)
-            }
-        };
+    public async Task<List<GameSummary>> GetGamesAsync()
+        => await client.GetFromJsonAsync<List<GameSummary>>("games") ?? [];
 
-    public List<GameSummary> GetGames() => _games;
-
-    public void AddGame(GameDetails game)
+    public async Task AddGameAsync(GameDetails game)
     {
-        var genres = new GenresClient().GetGenres();
-
-        _games.Add(new GameSummary
-        {
-            Id = _games.Max(g => g.Id) + 1,
-            Name = game.Name,
-            Genre = genres.FirstOrDefault(g => g.Id.ToString() == game.GenreId)?.Name ?? "Unknown",
-            Price = game.Price,
-            ReleaseDate = game.ReleaseDate
-        });
+        await client.PostAsJsonAsync("games", game);
     }
 
-    public GameDetails? GetGameDetails(int id)
+    public async Task<GameDetails?> GetGameDetailsAsync(int id)
     {
-        var game = _games.FirstOrDefault(g => g.Id == id);
-        if (game == null) return null;
-
-        var genres = new GenresClient().GetGenres();
-        return new GameDetails
-        {
-            Id = game.Id,
-            Name = game.Name,
-            GenreId = genres.SingleOrDefault(g => string.Equals(g.Name, game.Genre, StringComparison.OrdinalIgnoreCase))?.Id.ToString() ?? string.Empty,
-            Price = game.Price,
-            ReleaseDate = game.ReleaseDate
-        };
+        var game = await client.GetFromJsonAsync<GameDetails>($"games/{id}");
+        return game;
     }
 
-    public void UpdateGame(GameDetails game)
+    public async Task UpdateGameAsync(GameDetails game)
     {
-        var existingGame = _games.FirstOrDefault(g => g.Id == game.Id);
-        if (existingGame != null)
-        {
-            existingGame.Name = game.Name;
-            existingGame.Genre = new GenresClient().GetGenres().FirstOrDefault(g => g.Id.ToString() == game.GenreId)?.Name ?? "Unknown";
-            existingGame.Price = game.Price;
-            existingGame.ReleaseDate = game.ReleaseDate;
-        }
+        await client.PutAsJsonAsync($"games/{game.Id}", game);
     }
-
-    public void DeleteGame(int id)
+    public async Task DeleteGameAsync(int id)
     {
-        var game = _games.FirstOrDefault(g => g.Id == id);
-        if (game != null)
-        {
-            _games.Remove(game);
-        }
+        await client.DeleteAsync($"games/{id}");
     }
 }

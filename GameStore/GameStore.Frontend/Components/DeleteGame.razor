@@ -34,11 +34,11 @@
         return $"deleteGameModal-{game.Id}";
     }
 
-    private void HandleDelete()
+    private async Task HandleDelete()
     {
         ArgumentNullException.ThrowIfNull(Game, nameof(Game));
 
-        GamesClient.DeleteGame(Game.Id);
+        await GamesClient.DeleteGameAsync(Game.Id);
         NavigationManager.NavigateTo("/");
     }
 }

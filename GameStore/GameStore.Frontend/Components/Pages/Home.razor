@@ -47,9 +47,9 @@
 @code {
     private List<GameSummary> _games = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _games = GamesClient.GetGames();
+        _games = await GamesClient.GetGamesAsync();
     }
 
     private string GetDeleteModalId(GameSummary game)

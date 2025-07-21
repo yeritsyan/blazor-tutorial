@@ -65,7 +65,7 @@ else{
 
   private string title {get; set;} = string.Empty;
 
-  protected override void OnParametersSet()
+  protected override async Task OnParametersSetAsync()
   {
       if (game is not null){
         // user entered new game, so we do not need to fetch details
@@ -75,7 +75,7 @@ else{
       if (GameId.HasValue)
       {
           // Simulate fetching game details from the client
-          game = GamesClient.GetGameDetails(GameId.Value);
+          game = await GamesClient.GetGameDetailsAsync(GameId.Value);
           title = $"Edit Game: {game?.Name}";
       }
       else
@@ -89,26 +89,26 @@ else{
       }
   }
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
       // Simulate fetching genres from the client
-      genres = GenresClient.GetGenres().ToArray();
+      genres = (await GenresClient.GetGenresAsync()).ToArray();
   }
 
-  private void HandleSubmit()
+  private async Task HandleSubmit()
   {
     ArgumentNullException.ThrowIfNull(game, nameof(game));
 
     if(GameId is null)
     {
       // If game does not exist, we are adding a new game
-      GamesClient.AddGame(game);
+      await GamesClient.AddGameAsync(game);
     }
     else
     {
       game.Id = GameId.Value; // Ensure the game ID is set for updates
       // If game exists, we are updating it
-      GamesClient.UpdateGame(game);
+      await GamesClient.UpdateGameAsync(game);
     }
 
     NavigationManager.NavigateTo("/"); // Redirect to home after saving

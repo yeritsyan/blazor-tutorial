@@ -11,7 +11,7 @@ public class GameDetails
     [StringLength(50, ErrorMessage = "Name is too long")]
     public required string Name { get; set; }
 
-    [Required(ErrorMessage = "Genre is required")]
+    [Required(ErrorMessage = "GenreId is required")]
     public string? GenreId { get; set; }
 
     [Range(1, 100, ErrorMessage = "Rating must be between 0 and 100")]
