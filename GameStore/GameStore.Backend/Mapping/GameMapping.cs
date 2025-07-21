@@ -25,9 +25,9 @@ public static class GameMapping
         game.ReleaseDate = updateDto.ReleaseDate;
     }
 
-    public static GameDto ToDto(this Game game)
+    public static GameSummaryDto ToDto(this Game game)
     {
-        return new GameDto
+        return new GameSummaryDto
         (
             game.Id,
             game.Name,

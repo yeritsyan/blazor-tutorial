@@ -13,6 +13,6 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGamesEndpoints();
 
-app.MigrateDb();
+await app.MigrateDb();
 
 app.Run();
