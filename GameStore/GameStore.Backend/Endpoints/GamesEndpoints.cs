@@ -1,5 +1,8 @@
 using System;
+using GameStore.Backend.Data;
 using GameStore.Backend.Dtos;
+using GameStore.Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Backend.Endpoints;
 
@@ -27,12 +30,37 @@ public static class GamesEndpoints
         })
         .WithName(GetGameEndpointName);
 
-        group.MapPost("/", (CreateGameDto createGameDto) =>
+        group.MapPost("/", (CreateGameDto createGameDto, GameStoreContext dbContext) =>
         {
-            var newId = games.Max(g => g.Id) + 1;
-            var newGame = new GameDto(newId, createGameDto.Name, createGameDto.Genre, createGameDto.Price, createGameDto.ReleaseDate);
-            games.Add(newGame);
-            return Results.CreatedAtRoute(GetGameEndpointName, new { id = newId }, newGame);
+            Game game = new()
+            {
+                Name = createGameDto.Name,
+                GenreId = createGameDto.GenreId,
+                Price = createGameDto.Price,
+                ReleaseDate = createGameDto.ReleaseDate
+            };
+
+            dbContext.Games.Add(game);
+            dbContext.SaveChanges();
+
+            var savedGame = dbContext.Games
+                .Include(g => g.Genre)
+                .FirstOrDefault(g => g.Id == game.Id);
+
+            if (savedGame is null)
+            {
+                return Results.BadRequest("Saved game could not be found.");
+            }
+
+            GameDto gameDto = new(
+                savedGame.Id,
+                savedGame.Name,
+                savedGame.Genre?.Name ?? "Unknown",
+                savedGame.Price,
+                savedGame.ReleaseDate
+            );
+
+            return Results.CreatedAtRoute(GetGameEndpointName, new { id = gameDto.Id }, gameDto);
         });
 
         group.MapPut("/{id:int}", (int id, UpdateGameDto updateGameDto) =>

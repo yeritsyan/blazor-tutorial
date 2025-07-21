@@ -11,6 +11,10 @@ public class GameStoreContext(DbContextOptions<GameStoreContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-       
+        modelBuilder.Entity<Genre>().HasData(
+            new Genre { Id = 1, Name = "Action" },
+            new Genre { Id = 2, Name = "Adventure" },
+            new Genre { Id = 3, Name = "RPG" } 
+        );
     }
 }

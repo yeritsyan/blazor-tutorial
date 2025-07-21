@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "name": "Game xx",
-    "genre": "Genre xx",
+    "genreId": 2,
     "price": 39.99,
     "releaseDate": "2023-03-01"
 }
