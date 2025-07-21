@@ -19,15 +19,15 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:5158/games/3
+PUT http://localhost:5158/games/6
 Content-Type: application/json
 
 {
-    "name": "Updated Game 3",
-    "genre": "Updated Genre 3",
-    "price": 49.99,
+    "name": "updated",
+    "genreId": 2,
+    "price": 39.99,
     "releaseDate": "2023-03-01"
 }
 
 ###
-DELETE http://localhost:5158/games/3
+DELETE http://localhost:5158/games/2
