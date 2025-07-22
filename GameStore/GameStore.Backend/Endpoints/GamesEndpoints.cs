@@ -18,17 +18,16 @@ public static class GamesEndpoints
         group.MapGet("/", async (GameStoreContext dbContext) =>
         Results.Ok(await dbContext.Games
             .Include(g => g.Genre)
-            .Select(g => g.ToDto())
+            .Select(g => g.ToSummaryDto())
             .AsNoTracking()
             .ToListAsync()));
 
         group.MapGet("/{id:int}", async (int id, GameStoreContext dbContext) =>
         {
             var game = await dbContext.Games
-                .Include(g => g.Genre)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
-            return game is not null ? Results.Ok(game.ToDto()) : Results.NotFound();
+            return game is not null ? Results.Ok(game.ToDetailsDto()) : Results.NotFound();
         })
         .WithName(GetGameEndpointName);
 
@@ -48,7 +47,7 @@ public static class GamesEndpoints
                 return Results.BadRequest("Saved game could not be found.");
             }
 
-            GameSummaryDto gameDto = savedGame.ToDto();
+            GameSummaryDto gameDto = savedGame.ToSummaryDto();
 
             return Results.CreatedAtRoute(GetGameEndpointName, new { id = gameDto.Id }, gameDto);
         });
@@ -70,7 +69,7 @@ public static class GamesEndpoints
                 .Include(g => g.Genre)
                 .FirstOrDefaultAsync(g => g.Id == id);
 
-            return Results.Ok(updatedGame?.ToDto());
+            return Results.Ok(updatedGame?.ToSummaryDto());
         });
 
         group.MapDelete("/{id:int}", async (int id, GameStoreContext dbContext) =>

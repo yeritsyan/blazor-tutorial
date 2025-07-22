@@ -25,13 +25,25 @@ public static class GameMapping
         game.ReleaseDate = updateDto.ReleaseDate;
     }
 
-    public static GameSummaryDto ToDto(this Game game)
+    public static GameSummaryDto ToSummaryDto(this Game game)
     {
         return new GameSummaryDto
         (
             game.Id,
             game.Name,
             game.Genre?.Name ?? "Unknown",
+            game.Price,
+            game.ReleaseDate
+        );
+    }
+
+    public static GameDetailsDto ToDetailsDto(this Game game)
+    {
+        return new GameDetailsDto
+        (
+            game.Id,
+            game.Name,
+            game.GenreId,
             game.Price,
             game.ReleaseDate
         );
